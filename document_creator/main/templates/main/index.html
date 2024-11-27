@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ru" translate="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+    <title id="title">Новый документ</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'main/css/style.css' %}">
+</head>
+<body>
+    <div id="message" hidden>
+        <div id="question">Какие выбранные элементы скачать?</div>
+        <div id="download_checked">
+            <div class="checked_choosing" id="download_showed_items_button">Только отображенные</div>
+            <div class="checked_choosing" id="download_all_items_button">Все выбранные</div>
+        </div>
+    </div>
+    <div id="person_manage" hidden>
+        <div id="question">Что сделать с элементом?</div>
+        <div id="download_checked">
+            <div class="checked_choosing" id="open_data">Открыть данные</div>
+            <div class="checked_choosing" id="delete_data">Удалить данные</div>
+            <form action="/delete_person" id="delete_person_form" method="post">
+                {% csrf_token %}
+                <input type="text" name="id" id="delete_person_form_input" hidden>
+            </form>
+        </div>
+    </div>
+    <div id="block" hidden onclick="hide_message()"></div>
+    <div><header id="header">
+        <div id="main_header">
+            <div id="new_person_button">Заполнить данные</div>
+            <div id="get_documents_button">Скачать документы</div>
+            
+            <script>
+                {% if download_page %} 
+                let change_button = document.getElementById("get_documents_button");
+                {% else %}
+                let change_button = document.getElementById("new_person_button");
+                {% endif %}
+
+            </script>
+
+        </div>
+        <div id="second_header">
+            <div id="clear_data">Очистить данные</div>
+            <div id="add_data">Добавить</div>
+        </div>
+        
+    </header></div>
+    <div id="content">
+        <div id="new_person">
+            <form action="/add_person/" method="post" id="new_person_form">
+                {% csrf_token %}
+                <table id="new_person_table">
+                    {% for field in fields %}
+                    <tr>
+                        <td><div><label for="{{ field.0 }}">{{ field.1 }}</label></div></td>
+                        <td><input type="text" name="{{ field.0 }}" id="{{ field.0 }}" value="{{ field.2 }}" class="characteristic"></td>
+                        <td><div class="clear_button"><img class="delete" src="{% static 'main/images/krestik.png' %}" alt=""></div></td>
+                    </tr>
+                    {% endfor %}
+                    
+                </table>
+            </form>
+        </div>
+        
+        
+        <div id="get_documents" hidden>
+            <div id="parameters">
+                <div id="parameters_button">Параметры</div>
+                <hr id="parameters_hr" hidden>
+                <header id="parameters_header" hidden>
+                    <div class="format_string">
+                        <label for="selecting_name_version">Формат имени:</label>
+                        <select name="selecting_name_version" id="selecting_name_version" >
+                            <option value="Полное имя">Полное имя</option>
+                            <option value="Короткое имя" selected="selected">Короткое имя</option>
+                        </select>
+                    </div>
+                    <div class="format_string">
+                        <label for="element_selecting" >Выбор элементов</label>
+                        <input type="checkbox" name="element_selecting" id="element_selecting" checked>
+                    </div>  
+                    <div id="buttons">
+                        <button onclick="check_all()">Выбрать все показанные</button>   
+                        <button onclick="uncheck_all()">Отменить выбор</button>  
+                    </div> 
+
+                </header>
+                        
+            </div>
+            <div id="second_line">
+                <div id="find">
+                    <div id="find_button">Поиск</div>
+                    <hr id="find_hr" hidden>
+                    <header id="find_header" hidden>
+                        <table>
+                            <tr id="full_name_row" hidden>
+                                <td><label for="selecting_name_version">Полное имя:</label></td>
+                                <td><input type="text" name="" id="find_full_name"></td>
+                                <td><div class="mini_clear_button"><img class="delete" src="{% static 'main/images/krestik.png' %}" alt=""></div></td>
+                            </tr>
+                            <tr id="short_name_row">
+                                <td><label for="selecting_name_version">Короткое имя:</label></td>
+                                <td><input type="text" name="" id="find_short_name"></td>
+                                <td><div class="mini_clear_button"><img class="delete" src="{% static 'main/images/krestik.png' %}" alt=""></div></td>
+                            </tr>
+                            <tr>
+                                <td><label for="selecting_name_version">Рег. номер:</label></td>
+                                <td><input type="text" name="" id="find_registration_number"></td>
+                                <td><div class="mini_clear_button"><img class="delete" src="{% static 'main/images/krestik.png' %}" alt=""></div></td>
+                            </tr>
+                            <tr>
+                                <td><label for="selecting_name_version">Скачано:</label></td>
+                                <td>
+                                    <select name="" id="downloaded_type" >
+                                        <option value="all" selected = "selected">Все</option>
+                                        <option value="only_downloaded">Скачанные</option>
+                                        <option value="only_not_downloaded">Не скачанные</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </table>
+     
+                    </header>
+                </div>
+                <div id="download" onclick="show_message()">Скачать</div>
+            </div>
+            
+            <div id="data_container">
+                <table class="data">
+                    <tr>
+                        <th id="short_name_head" class="short_name"><div>Короткое имя</div></td></div>
+                        <th id="full_name_head" class="full_name" hidden><div>Полное имя</div></td>
+                        <th id="registration_number_head" class="registration_number"><div>Рег. номер</div></td>
+                        <th class="selection_checkbox"><div>Выбрано</div></td>
+                        <th class="downloaded_checkbox"><div>Скачано</div></td>
+                    </tr>
+                    
+                    {% for person in short_data %}
+                    <tr>
+                        <td class="short_name">{{ person.short_name }}</td>
+                        <td hidden><input type="text" class="row_id" value="{{ person.id }}"></td>
+                        <td class="full_name" hidden>{{ person.full_name }}</td>
+                        <td class="registration_number">{{ person.registration_sign }}</td>
+                        <td class="selection_checkbox"><input type="checkbox" name="" id=""></td>
+                        <td class="downloaded_checkbox"><input type="checkbox"  name="" id="" onclick="return false;" {% if person.is_downloaded %}checked{% endif %}></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+    
+
+    <script src="{% static 'main/js/header.js' %}"></script>
+    <script src="{% static 'main/js/new_person.js' %}"></script>
+    <script src="{% static 'main/js/get_documents.js' %}"></script>
+</body>
+</html>
